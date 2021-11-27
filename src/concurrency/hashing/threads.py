@@ -12,7 +12,7 @@ def calculate_sha256(msg_list):
         _ = hashlib.sha256(m)
 
 
-N_THREADS = 8
+N_THREADS = 2
 
 if __name__ == "__main__":
     times = []

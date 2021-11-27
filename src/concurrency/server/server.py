@@ -1,27 +1,47 @@
-from socketserver import TCPServer, StreamRequestHandler, ThreadingTCPServer
-
-from concurrency.fibonacci import fib
-
-
-class FibServer(ThreadingTCPServer):
-    allow_reuse_address = True
-
-    def server_bind(self):
-        super().server_bind()
-        print(f"Server listening on {self.server_address}")
+import socket
+import threading
 
 
-class FibHandler(StreamRequestHandler):
-    def handle(self):
-        print(f"Connection from {self.client_address}")
-        while req := self.request.recv(100).strip():
-            n = int(req)
-            result = fib(n)
-            resp = str(result).encode('utf8') + b'\n'
-            self.request.send(resp)
-        print("Connection closed")
+def fib(n):
+    if n <= 2:
+        return 1
+    return fib(n - 1) + fib(n - 2)
+
+
+def fib_server(address):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(address)
+    sock.listen(5)
+    while True:
+        client, addr = sock.accept()
+        print(f"Connection from {addr}")
+        fib_handler(client)
+
+
+def fib_server_threaded(address):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(address)
+    sock.listen(5)
+    while True:
+        client, addr = sock.accept()
+        print(f"Connection from {addr}")
+        threading.Thread(target=fib_handler, args=(client,)).start()
+
+
+def fib_handler(sock):
+    while True:
+        req = sock.recv(100).strip()
+        if not req:
+            break
+        n = int(req)
+        result = fib(n)
+        resp = f"{result}\n".encode("utf-8")
+        sock.send(resp)
 
 
 if __name__ == "__main__":
-    with FibServer(("", 25000), FibHandler) as server:
-        server.serve_forever()
+    address = ("", 25000)
+    # fib_server(address)
+    fib_server_threaded(address)
