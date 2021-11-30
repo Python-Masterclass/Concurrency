@@ -2,6 +2,7 @@ import concurrent.futures
 import queue
 import random
 import threading
+import time
 from collections import deque
 
 
@@ -105,16 +106,27 @@ class DoublerWithTwoConditions:
 class AndGate:
     def __init__(self):
         self.barrier = threading.Barrier(2, action=self.report)
-        self.data = deque(maxlen=2)
+        self.data1 = queue.Queue()
+        self.data2 = queue.Queue()
+        self.d1 = None
+        self.d2 = None
+        self.lock1 = threading.Lock()
+        self.lock2 = threading.Lock()
 
-    def input(self):
-        value = random.choice((False, True))
-        print(f"Generated {value}.")
-        self.data.append(value)
-        self.barrier.wait()
+    def input1(self):
+        with self.lock1:
+            self.d1 = self.data1.get()
+            print(f"input 1 got {self.d1}")
+            self.barrier.wait()
+
+    def input2(self):
+        with self.lock2:
+            self.d2 = self.data2.get()
+            print(f"input 2 got {self.d2}")
+            self.barrier.wait()
 
     def report(self):
-        print(f"{self.data[0]} and {self.data[1]} -> {self.data[0] and self.data[1]}")
+        print(f"{self.d1} and {self.d2} -> {self.d1 and self.d2}")
 
 
 class DoublerWithQueue:
@@ -142,10 +154,17 @@ def main():
 
 def main_and_gate():
     and_gate = AndGate()
-    tasks = [and_gate.input] * 20
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    tasks = [and_gate.input1, and_gate.input2] * 10
+    random.shuffle(tasks)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         for t in tasks:
             executor.submit(t)
+        data = [True, False] * 10
+        queue = [and_gate.data1, and_gate.data2] * 10
+        random.shuffle(data)
+        random.shuffle(queue)
+        for q, d in zip(queue, data):
+            q.put(d)
 
 
 if __name__ == "__main__":
