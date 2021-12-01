@@ -1,7 +1,7 @@
 import logging
 import time
 
-from concurrency.pubsub_solution.pubsub import PubSub
+from pubsub import PubSub
 from publisher import Publisher
 from subscriber import Subscriber
 
