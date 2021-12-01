@@ -11,8 +11,8 @@ def count():
 
 
 def main():
-    t = Thread(target=count)
-    # t = Thread(target=count, daemon=True)
+    # t = Thread(target=count)
+    t = Thread(target=count, daemon=True)
     t.start()
     time.sleep(3)
     print("Stopping program")

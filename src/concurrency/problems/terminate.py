@@ -12,7 +12,7 @@ def count(stop_event):
 
 def other_work():
     time.sleep(5)
-    # raise RuntimeError
+    raise RuntimeError
 
 
 def main():
