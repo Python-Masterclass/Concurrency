@@ -7,7 +7,7 @@ def countdown(n):
         n -= 1
 
 
-COUNT = 50_000_000
+COUNT = 10_000_000
 
 N_THREADS = 4
 
@@ -15,8 +15,8 @@ N_THREADS = 4
 if __name__ == "__main__":
     times = []
     for _ in range(3):
-        threads = [Thread(target=countdown, args=(COUNT // N_THREADS,)) for _ in range(N_THREADS)]
         start_time = time.time()
+        threads = [Thread(target=countdown, args=(COUNT // N_THREADS,)) for _ in range(N_THREADS)]
         for t in threads:
             t.start()
         for t in threads:

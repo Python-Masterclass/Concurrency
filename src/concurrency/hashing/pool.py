@@ -7,7 +7,7 @@ from concurrency.hashing.messages import get_messages
 messages = get_messages()
 
 
-N_WORKERS = 4
+N_WORKERS = 8
 
 if __name__ == "__main__":
     times = []

@@ -7,9 +7,9 @@ def countdown(n):
         n -= 1
 
 
-COUNT = 50_000_000
+COUNT = 10_000_000
 
-N_WORKERS = 2
+N_WORKERS = 1
 
 
 if __name__ == "__main__":

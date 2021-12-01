@@ -1,14 +1,14 @@
 import logging
 import time
 
-from pubsub import PubSub
+from concurrency.pubsub_solution.pubsub import PubSub
 from publisher import Publisher
 from subscriber import Subscriber
 
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="[%(levelname)s] (%(threadName)-10s) %(message)s",
+    level=logging.DEBUG,
+    format="[%(levelname)s] (%(threadName)s) %(message)s",
 )
 
 
@@ -28,13 +28,13 @@ if __name__ == "__main__":
 
     pubsub.stop()  # Pubsub can be paused and later resumed
 
-    publisher1.publish("Message 2")  #  Messages are buffered while pubsub is paused
+    publisher1.publish("Message 2")  # Messages are buffered while pubsub is paused
     time.sleep(0)
 
     sub1.unsubscribe(pubsub)  # Subscriber 1 no longer receives messages
     time.sleep(0)
 
-    pubsub.start()  # Subscriber 2 receives Message 2
+    pubsub.start()  # Resume pubsub. Subscriber 2 receives Message 2
 
     sub3 = Subscriber("Subscriber3")
     sub3.subscribe(pubsub)
@@ -53,6 +53,5 @@ if __name__ == "__main__":
 
     publisher1.publish("Message 4")  # This message is not distributed anymore. Error message is logged
     publisher2.publish("Still there?")  # This message is received by all three subscribers
-    time.sleep(0)
 
     time.sleep(0.5)

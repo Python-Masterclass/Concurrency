@@ -7,15 +7,15 @@ def countdown(n):
         n -= 1
 
 
-COUNT = 50_000_000
+COUNT = 10_000_000
 
 
 if __name__ == "__main__":
     times = []
     for _ in range(3):
+        start_time = time.time()
         t1 = Thread(target=countdown, args=(COUNT // 2,))
         t2 = Thread(target=countdown, args=(COUNT // 2,))
-        start_time = time.time()
         t1.start()
         t2.start()
         t1.join()

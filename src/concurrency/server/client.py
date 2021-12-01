@@ -11,5 +11,3 @@ if __name__ == "__main__":
         sock.send(n.encode("utf-8"))
         response = sock.recv(100)
         print(f"{response.decode('utf-8').strip()}")
-
-

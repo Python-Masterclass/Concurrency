@@ -6,31 +6,31 @@ import threading
 class Subscriber:
     def __init__(self, name):
         self.name = name
-        self.in_queue = queue.Queue()
-        self.subscribed = threading.Event()
-        self.subscription_thread = threading.Thread(target=self.monitor, name=self.name, daemon=True)
-        self.subscription_thread.start()
+        self._msg_queue = None
+        self._subscribed = threading.Event()
+        self._monitor_thread = threading.Thread(target=self.monitor, name=self.name, daemon=True)
+        self._monitor_thread.start()
 
     def subscribe(self, pubsub):
         logging.debug("Subscriber %s is subscribing", self.name)
-        pubsub.add_destination(self.in_queue, self.name)
-        self.subscribed.set()
+        self._msg_queue = pubsub.add_subscriber(self)
+        self._subscribed.set()
 
     def unsubscribe(self, pubsub):
         logging.debug("Subscriber %s is unsubscribing", self.name)
-        pubsub.remove_destination(self.in_queue)
-        self.subscribed.clear()
+        pubsub.remove_subscriber(self)
+        self._subscribed.clear()
 
     def monitor(self):
         logging.debug("Waiting for subscription")
         while True:
-            self.subscribed.wait()
+            self._subscribed.wait()
             logging.debug("Subscription active")
-            while self.subscribed.is_set():
+            while self._subscribed.is_set():
                 try:
-                    source, topic = self.in_queue.get(timeout=0.1)
+                    source, message = self._msg_queue.get(timeout=0.1)
                 except queue.Empty:
                     pass
                 else:
-                    logging.info("Received message %s from %s", topic, source)
+                    logging.info("Received message %s from %s", message, source)
             logging.debug("Subscription cancelled")
