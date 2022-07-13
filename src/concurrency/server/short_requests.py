@@ -17,7 +17,7 @@ if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(("localhost", 25000))
 
-    monitor_thread = Thread(target=monitor)
+    monitor_thread = Thread(target=monitor, daemon=True)
     monitor_thread.start()
 
     while True:
