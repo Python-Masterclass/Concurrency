@@ -1,6 +1,3 @@
-# Copyright (c) 2022 Ruud de Jong
-# This file is part of the Concurrency project which is released under the MIT license.
-# See https://github.com/rhjdjong/Concurrency for details.
 import asyncio
 import logging
 import selectors
@@ -93,7 +90,6 @@ def cancel_tasks():
 
 
 async def fib_server_async(address):
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(address)
