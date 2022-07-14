@@ -75,7 +75,7 @@ async def main_first_completed():
             asyncio.create_task(fetch_status(session, url))
             for url in URLS + ["python://bad.url", "https://www.example.com"]
         ]
-        pending = tasks[:]  # Copy the original tasks into pending
+        pending = tasks
         while pending:
             done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
             print(f"{len(done)=}")

@@ -21,7 +21,7 @@ async def main():
     await delay1
     await delay2
     print("canceling worker")
-    working.cancel()
+    # working.cancel()
     print("main finished")
 
 

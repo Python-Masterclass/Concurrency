@@ -10,6 +10,14 @@ def fib(n):
         return 1
     return fib(n - 1) + fib(n - 2)
 
+# Server that can handle only one connection
+def fib_handler(sock):
+    while req := sock.recv(100).strip():
+        n = int(req)
+        result = fib(n)
+        resp = f"{result}\n".encode("utf-8")
+        sock.send(resp)
+
 
 def fib_server(address):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,7 +30,8 @@ def fib_server(address):
         fib_handler(client)
 
 
-def fib_handler(sock):
+# A low-level non-blocking server, including all warts
+def fib_handler_non_blocking(sock):
     try:
         req = sock.recv(100).strip()
     except BlockingIOError:
@@ -54,9 +63,10 @@ def fib_server_non_blocking(address):
                 print(f"Connection from {addr}")
                 selector.register(client, selectors.EVENT_READ)
             else:
-                fib_handler(event_socket)
+                fib_handler_non_blocking(event_socket)
 
 
+# Async server using the socket methods on the event loop
 async def fib_handler_async(sock, loop):
     try:
         while req := await loop.sock_recv(sock, 100):
@@ -95,23 +105,9 @@ async def fib_server_async(address):
     sock.bind(address)
     sock.listen(5)
     sock.setblocking(False)   # This is new!
-    selector = selectors.DefaultSelector()
-    selector.register(sock, selectors.EVENT_READ)
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     # loop.add_signal_handler(signal.SIGINT, cancel_tasks)  # Does not work on Windows
     await wait_for_connection(sock, loop)
-
-    while True:
-        events = selector.select(timeout=1)
-        for event, _ in events:
-            event_socket = event.fileobj
-            if event_socket == sock:
-                client, addr = sock.accept()
-                client.setblocking(False)
-                print(f"Connection from {addr}")
-                selector.register(client, selectors.EVENT_READ)
-            else:
-                fib_handler_async(event_socket)
 
 
 if __name__ == "__main__":

@@ -18,8 +18,8 @@ URLS = [
 async def main():
     async with aiohttp.ClientSession() as session:
         request = [fetch_status(session, url) for url in URLS]
-        status_codes = await asyncio.gather(*request)  # Application crashes with AssertionError
-        # status_codes = await asyncio.gather(*request, return_exceptions=True)  # This returns the exception
+        # status_codes = await asyncio.gather(*request)  # Application crashes with AssertionError
+        status_codes = await asyncio.gather(*request, return_exceptions=True)  # This returns the exception
         return status_codes
 
 
